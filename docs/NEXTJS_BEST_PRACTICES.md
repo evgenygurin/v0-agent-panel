@@ -593,9 +593,428 @@ import { env } from '@/lib/env'
 console.log(env.NEXT_PUBLIC_APP_URL) // Type-safe!
 ```
 
+## 🔀 Advanced Routing Patterns
+
+### Parallel Routes
+
+Render multiple pages simultaneously in the same layout. Perfect for dashboards with independent sections.
+
+**File Structure**:
+```text
+app/
+├── agent/
+│   ├── @chat/
+│   │   └── page.tsx       # Chat section
+│   ├── @history/
+│   │   └── page.tsx       # History section
+│   ├── @analytics/
+│   │   └── page.tsx       # Analytics section
+│   └── layout.tsx         # Parallel layout
+```
+
+**Layout Implementation**:
+```typescript
+// app/agent/layout.tsx
+export default function AgentLayout({
+  children,
+  chat,      // @chat slot
+  history,   // @history slot
+  analytics, // @analytics slot
+}: {
+  children: React.ReactNode
+  chat: React.ReactNode
+  history: React.ReactNode
+  analytics: React.ReactNode
+}) {
+  return (
+    <div className="grid grid-cols-12 gap-4">
+      {/* Main content */}
+      <div className="col-span-6">{chat}</div>
+
+      {/* Sidebar sections load independently */}
+      <div className="col-span-3">
+        <Suspense fallback={<HistorySkeleton />}>
+          {history}
+        </Suspense>
+      </div>
+
+      <div className="col-span-3">
+        <Suspense fallback={<AnalyticsSkeleton />}>
+          {analytics}
+        </Suspense>
+      </div>
+    </div>
+  )
+}
+```
+
+**Benefits**:
+- Independent loading states for each section
+- Better performance with Suspense boundaries
+- URL remains unchanged
+- Each slot can have its own error boundary
+
+### Intercepting Routes
+
+Intercept navigation to show content in a modal while keeping the URL for sharing.
+
+**File Structure**:
+```text
+app/
+├── conversations/
+│   └── [id]/
+│       └── page.tsx           # Full conversation page
+└── agent/
+    ├── (..)conversations/
+    │   └── [id]/
+    │       └── page.tsx       # Modal version
+    └── page.tsx
+```
+
+**Modal Implementation**:
+```typescript
+// app/agent/(..)conversations/[id]/page.tsx
+import { Modal } from '@/components/ui/modal'
+
+export default async function ConversationModal({
+  params,
+}: {
+  params: { id: string }
+}) {
+  const conversation = await fetchConversation(params.id)
+
+  return (
+    <Modal>
+      <ConversationDetail conversation={conversation} />
+    </Modal>
+  )
+}
+```
+
+**Use Cases**:
+- Photo galleries (Instagram-style)
+- Conversation previews
+- Quick edits without leaving context
+- Share-friendly URLs
+
+**Interception Patterns**:
+- `(.)` - Same level
+- `(..)` - One level up
+- `(..)(..)` - Two levels up
+- `(...)` - From root
+
+### Route Groups
+
+Organize routes logically without affecting URL structure.
+
+**File Structure**:
+```text
+app/
+├── (public)/
+│   ├── layout.tsx        # Public layout
+│   ├── page.tsx          # / (home)
+│   └── about/
+│       └── page.tsx      # /about
+├── (dashboard)/
+│   ├── layout.tsx        # Dashboard layout
+│   ├── agent/
+│   │   └── page.tsx      # /agent
+│   └── settings/
+│       └── page.tsx      # /settings
+└── (auth)/
+    ├── layout.tsx        # Auth layout
+    ├── login/
+    │   └── page.tsx      # /login
+    └── register/
+        └── page.tsx      # /register
+```
+
+**Different Layouts per Group**:
+```typescript
+// app/(dashboard)/layout.tsx
+export default function DashboardLayout({ children }) {
+  return (
+    <div className="flex h-screen">
+      <DashboardSidebar />
+      <main className="flex-1">{children}</main>
+    </div>
+  )
+}
+
+// app/(auth)/layout.tsx
+export default function AuthLayout({ children }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="w-full max-w-md">{children}</div>
+    </div>
+  )
+}
+```
+
+## 🎯 Advanced Caching Strategies
+
+### `use cache` Directive (Next.js 15+)
+
+New directive for explicit component-level caching:
+
+```typescript
+// components/expensive-data.tsx
+'use cache'
+
+export async function ExpensiveData() {
+  // This component's output is cached
+  const data = await fetchExpensiveData()
+
+  return (
+    <div>
+      {data.map((item) => (
+        <DataCard key={item.id} item={item} />
+      ))}
+    </div>
+  )
+}
+```
+
+**Cache Tags for Granular Invalidation**:
+
+```typescript
+// components/user-profile.tsx
+'use cache'
+
+import { unstable_cacheTag as cacheTag } from 'next/cache'
+
+export async function UserProfile({ userId }: { userId: string }) {
+  cacheTag(`user-${userId}`)
+
+  const user = await fetchUser(userId)
+
+  return <ProfileCard user={user} />
+}
+
+// Revalidate specific user
+import { revalidateTag } from 'next/cache'
+
+export async function updateUserAction(userId: string, data: any) {
+  await updateUser(userId, data)
+
+  // Only invalidate this user's cache
+  revalidateTag(`user-${userId}`)
+}
+```
+
+### Request Memoization
+
+Automatically deduplicate requests in a single render:
+
+```typescript
+// lib/data.ts
+import { cache } from 'react'
+
+// Without cache: fetches multiple times
+export const fetchUser = async (id: string) => {
+  return await db.user.findUnique({ where: { id } })
+}
+
+// With cache: fetches once per request
+export const fetchUser = cache(async (id: string) => {
+  return await db.user.findUnique({ where: { id } })
+})
+```
+
+**Usage**:
+```typescript
+// app/profile/page.tsx
+async function UserHeader() {
+  const user = await fetchUser('123') // Fetch 1
+  return <Header user={user} />
+}
+
+async function UserStats() {
+  const user = await fetchUser('123') // Reuses Fetch 1
+  return <Stats user={user} />
+}
+
+async function UserPosts() {
+  const user = await fetchUser('123') // Reuses Fetch 1
+  return <Posts user={user} />
+}
+
+export default function ProfilePage() {
+  return (
+    <>
+      <UserHeader />   {/* Fetches user */}
+      <UserStats />    {/* Cached */}
+      <UserPosts />    {/* Cached */}
+    </>
+  )
+}
+```
+
+## 🛠️ OpenTelemetry Instrumentation
+
+Full observability for production applications:
+
+**Setup**:
+
+```bash
+pnpm add @opentelemetry/api @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node
+```
+
+**Configuration**:
+
+```typescript
+// instrumentation.ts (root of project)
+export async function register() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const { NodeSDK } = await import('@opentelemetry/sdk-node')
+    const { getNodeAutoInstrumentations } = await import(
+      '@opentelemetry/auto-instrumentations-node'
+    )
+    const { OTLPTraceExporter } = await import(
+      '@opentelemetry/exporter-trace-otlp-http'
+    )
+
+    const sdk = new NodeSDK({
+      traceExporter: new OTLPTraceExporter({
+        url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT,
+      }),
+      instrumentations: [getNodeAutoInstrumentations()],
+    })
+
+    sdk.start()
+
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      sdk
+        .shutdown()
+        .then(() => console.log('Tracing terminated'))
+        .catch((error) => console.error('Error terminating tracing', error))
+    })
+  }
+}
+```
+
+**Custom Spans**:
+
+```typescript
+// lib/tracing.ts
+import { trace } from '@opentelemetry/api'
+
+export async function tracedAIGeneration(messages: any[]) {
+  const tracer = trace.getTracer('ai-agent')
+
+  return await tracer.startActiveSpan('ai.generation', async (span) => {
+    span.setAttribute('ai.model', 'claude-sonnet-4-5')
+    span.setAttribute('ai.message_count', messages.length)
+
+    try {
+      const result = await streamText({
+        model: anthropic('claude-sonnet-4-5-20250929'),
+        messages,
+      })
+
+      span.setAttribute('ai.tokens_used', result.usage.totalTokens)
+      span.setStatus({ code: SpanStatusCode.OK })
+
+      return result
+    } catch (error) {
+      span.recordException(error)
+      span.setStatus({ code: SpanStatusCode.ERROR })
+      throw error
+    } finally {
+      span.end()
+    }
+  })
+}
+```
+
+**Environment Variables**:
+
+```bash
+# .env.local
+OTEL_EXPORTER_OTLP_ENDPOINT=https://your-observability-backend.com/v1/traces
+OTEL_SERVICE_NAME=ai-agent-panel
+OTEL_LOG_LEVEL=info
+```
+
+## 🚀 Experimental Features (Next.js 15)
+
+Enable experimental features in `next.config.mjs`:
+
+```javascript
+// next.config.mjs
+export default {
+  experimental: {
+    // Turbopack (Faster development builds)
+    turbo: {
+      resolveAlias: {
+        '@': './src',
+      },
+    },
+
+    // PPR (Partial Prerendering) - Combine static and dynamic in same page
+    ppr: true,
+
+    // React Compiler (Automatic memoization)
+    reactCompiler: true,
+
+    // Server Actions enhancements
+    serverActions: {
+      bodySizeLimit: '2mb',
+      allowedOrigins: ['localhost:3000', 'your-domain.com'],
+    },
+
+    // Type-safe environment variables
+    typedEnv: true,
+  },
+}
+```
+
+### Partial Prerendering (PPR)
+
+Mix static and dynamic content in the same page:
+
+```typescript
+// app/blog/[slug]/page.tsx
+import { Suspense } from 'react'
+
+export const experimental_ppr = true
+
+export default async function BlogPost({ params }) {
+  // Static: Prerendered at build time
+  const post = await fetchPost(params.slug)
+
+  return (
+    <article>
+      {/* Static content */}
+      <h1>{post.title}</h1>
+      <div dangerouslySetInnerHTML={{ __html: post.content }} />
+
+      {/* Dynamic content: Rendered on request */}
+      <Suspense fallback={<CommentsSkeleton />}>
+        <Comments postId={post.id} />
+      </Suspense>
+
+      <Suspense fallback={<ViewCountSkeleton />}>
+        <ViewCount postId={post.id} />
+      </Suspense>
+    </article>
+  )
+}
+```
+
+**Benefits**:
+- Instant page load (static shell)
+- Dynamic data streams in
+- Best of both static and dynamic rendering
+
 ## 📚 Additional Resources
 
 - [Next.js 15 Documentation](https://nextjs.org/docs)
+- [Parallel Routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes)
+- [Intercepting Routes](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes)
+- [Caching in Next.js](https://nextjs.org/docs/app/building-your-application/caching)
+- [OpenTelemetry Integration](https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation)
 - [App Router Migration Guide](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration)
 - [React Server Components](https://react.dev/blog/2023/03/22/react-labs-what-we-have-been-working-on-march-2023#react-server-components)
 - [Vercel Deployment Best Practices](https://vercel.com/docs/concepts/deployments/overview)

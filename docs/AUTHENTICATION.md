@@ -616,9 +616,348 @@ if (!success) {
 }
 ```
 
+## 🎨 Auth0 Lock UI (Hosted Login)
+
+Auth0 Lock provides a beautiful, customizable hosted login widget.
+
+### Installation
+
+```bash
+pnpm add @auth0/nextjs-auth0
+```
+
+### Enable Universal Login
+
+**Auth0 Dashboard**:
+1. Applications → Your App → Settings
+2. Allowed Callback URLs: `http://localhost:3000/api/auth/callback, https://your-domain.com/api/auth/callback`
+3. Allowed Logout URLs: `http://localhost:3000, https://your-domain.com`
+4. Allowed Web Origins: `http://localhost:3000, https://your-domain.com`
+
+### Redirect to Hosted Login
+
+```typescript
+// app/login/page.tsx
+import { redirect } from 'next/navigation'
+
+export default function LoginPage() {
+  // This page redirects to Auth0 Lock
+  redirect('/api/auth/login')
+}
+```
+
+**Auth0 automatically redirects to Lock UI** - no additional code needed!
+
+### Customize Lock UI
+
+**Auth0 Dashboard** → Branding → Universal Login:
+
+```javascript
+// Custom Lock Configuration
+{
+  "theme": {
+    "logo": "https://your-domain.com/logo.png",
+    "primaryColor": "#0070f3"
+  },
+  "languageDictionary": {
+    "title": "Login to AI Agent"
+  },
+  "auth": {
+    "redirect": true,
+    "responseType": "code",
+    "params": {
+      "scope": "openid profile email"
+    }
+  }
+}
+```
+
+### Social Logins with Lock
+
+**Enable in Dashboard**: Authentication → Social → Enable providers
+
+```typescript
+// Lock automatically shows enabled social providers
+// No code changes needed in Next.js app
+
+// Available providers:
+// - Google
+// - GitHub
+// - Facebook
+// - Twitter/X
+// - LinkedIn
+// - Microsoft
+// - Apple
+```
+
+### Passwordless Authentication
+
+**Enable in Dashboard**: Authentication → Passwordless
+
+```typescript
+// Lock supports:
+// - Email Magic Links
+// - SMS OTP
+// - Biometric (WebAuthn)
+
+// No code changes - Lock handles the UI
+```
+
+## 🔧 Supabase Edge Functions for Auth Workflows
+
+Automate auth-related tasks with Edge Functions (see [SUPABASE_ADVANCED.md](./SUPABASE_ADVANCED.md) for full guide).
+
+### Welcome Email on Sign Up
+
+```typescript
+// supabase/functions/welcome-email/index.ts
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { SMTPClient } from 'https://deno.land/x/denomailer@1.6.0/mod.ts'
+
+serve(async (req) => {
+  const { userId, email } = await req.json()
+
+  const client = new SMTPClient({
+    connection: {
+      hostname: Deno.env.get('SMTP_HOST')!,
+      port: parseInt(Deno.env.get('SMTP_PORT')!),
+      tls: true,
+      auth: {
+        username: Deno.env.get('SMTP_USER')!,
+        password: Deno.env.get('SMTP_PASSWORD')!,
+      },
+    },
+  })
+
+  await client.send({
+    from: Deno.env.get('SMTP_FROM')!,
+    to: email,
+    subject: 'Welcome to AI Agent!',
+    content: `
+      <h2>Welcome!</h2>
+      <p>Your AI Agent account is ready.</p>
+      <a href="https://your-app.com/agent">Start chatting</a>
+    `,
+    html: true,
+  })
+
+  await client.close()
+
+  return new Response(JSON.stringify({ success: true }), {
+    headers: { 'Content-Type': 'application/json' },
+  })
+})
+```
+
+**Trigger via Database**:
+
+```sql
+-- Call welcome email on user creation
+create or replace function send_welcome_email()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  perform
+    net.http_post(
+      url := 'https://your-project.supabase.co/functions/v1/welcome-email',
+      headers := jsonb_build_object(
+        'Authorization', 'Bearer ' || current_setting('app.service_role_key')
+      ),
+      body := jsonb_build_object(
+        'userId', NEW.id,
+        'email', NEW.email
+      )
+    );
+  return NEW;
+end;
+$$;
+
+create trigger on_user_created
+  after insert on auth.users
+  for each row
+  execute function send_welcome_email();
+```
+
+### Initialize User Profile
+
+```typescript
+// supabase/functions/init-user-profile/index.ts
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+serve(async (req) => {
+  const { userId, email } = await req.json()
+
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  )
+
+  // Create user profile
+  await supabase.from('user_profiles').insert({
+    user_id: userId,
+    email: email,
+    display_name: email.split('@')[0],
+    monthly_token_quota: 1_000_000, // 1M tokens
+    tokens_used_this_month: 0,
+    created_at: new Date().toISOString(),
+  })
+
+  return new Response(JSON.stringify({ success: true }), {
+    headers: { 'Content-Type': 'application/json' },
+  })
+})
+```
+
+### Track Login Activity
+
+```typescript
+// supabase/functions/track-login/index.ts
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+serve(async (req) => {
+  const { userId, ipAddress, userAgent } = await req.json()
+
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  )
+
+  // Log login activity
+  await supabase.from('login_activity').insert({
+    user_id: userId,
+    ip_address: ipAddress,
+    user_agent: userAgent,
+    login_at: new Date().toISOString(),
+  })
+
+  // Update last_login in user_profiles
+  await supabase
+    .from('user_profiles')
+    .update({ last_login: new Date().toISOString() })
+    .eq('user_id', userId)
+
+  return new Response(JSON.stringify({ success: true }), {
+    headers: { 'Content-Type': 'application/json' },
+  })
+})
+```
+
+**Call from Middleware**:
+
+```typescript
+// middleware.ts
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: any) {
+          response.cookies.set({ name, value, ...options })
+        },
+        remove(name: string, options: any) {
+          response.cookies.set({ name, value: '', ...options })
+        },
+      },
+    }
+  )
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    // Track login activity via Edge Function
+    await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/track-login`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          ipAddress: request.ip || 'unknown',
+          userAgent: request.headers.get('user-agent') || 'unknown',
+        }),
+      }
+    )
+  }
+
+  return response
+}
+```
+
+## 🔐 Multi-Factor Authentication (MFA)
+
+### Supabase MFA
+
+```typescript
+// Enable MFA for user
+import { createClient } from '@/lib/supabase/client'
+
+export async function enableMFA() {
+  const supabase = createClient()
+
+  // Enroll MFA
+  const { data: { id, type, totp } } = await supabase.auth.mfa.enroll({
+    factorType: 'totp',
+  })
+
+  // Show QR code to user
+  return {
+    qrCode: totp.qr_code,
+    secret: totp.secret,
+    factorId: id,
+  }
+}
+
+// Verify MFA code
+export async function verifyMFA(factorId: string, code: string) {
+  const supabase = createClient()
+
+  const { data, error } = await supabase.auth.mfa.verify({
+    factorId,
+    code,
+  })
+
+  return { success: !error, error }
+}
+```
+
+### Auth0 MFA
+
+**Enable in Dashboard**: Security → Multi-factor Auth
+
+```typescript
+// Auth0 automatically enforces MFA
+// No code changes needed in Next.js app
+
+// Configure MFA factors:
+// - SMS
+// - Authenticator app (TOTP)
+// - Email
+// - WebAuthn (biometric)
+```
+
 ## 📚 Resources
 
 - [Supabase Auth Documentation](https://supabase.com/docs/guides/auth)
+- [Supabase Edge Functions](./SUPABASE_ADVANCED.md)
 - [Auth0 Next.js Quickstart](https://auth0.com/docs/quickstart/webapp/nextjs)
+- [Auth0 Lock Documentation](https://auth0.com/docs/libraries/lock)
+- [Auth0 Universal Login](https://auth0.com/docs/authenticate/login/auth0-universal-login)
 - [Next.js Authentication Patterns](https://nextjs.org/docs/app/building-your-application/authentication)
 - [JWT Best Practices](https://datatracker.ietf.org/doc/html/rfc8725)

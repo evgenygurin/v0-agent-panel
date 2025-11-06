@@ -73,9 +73,23 @@ Open [http://localhost:3000/agent](http://localhost:3000/agent) to try the AI ag
 
 **Production Deployment (Vercel):**
 
+**Quick Setup (Automated Script):**
+```bash
+# One-command setup with interactive prompts
+./setup-vercel-production.sh
+```
+
+This script will:
+- Check Vercel CLI installation
+- Link your project (if not linked)
+- Guide you through API key setup
+- Create production deployment
+
+**Manual Setup:**
+
 1. Get an API key:
    - Go to [Anthropic Console](https://console.anthropic.com/settings/keys)
-   - Create a new API key (free tier available)
+   - Create a new API key (free tier: $5 credits)
    - API key works alongside your Claude Max subscription
 
 2. Add to Vercel via CLI:
@@ -84,9 +98,7 @@ Open [http://localhost:3000/agent](http://localhost:3000/agent) to try the AI ag
    vercel link
 
    # Add API key to all environments
-   vercel env add ANTHROPIC_API_KEY production
-   vercel env add ANTHROPIC_API_KEY preview
-   vercel env add ANTHROPIC_API_KEY development
+   vercel env add ANTHROPIC_API_KEY
 
    # Deploy
    vercel --prod
@@ -98,6 +110,8 @@ Open [http://localhost:3000/agent](http://localhost:3000/agent) to try the AI ag
    - Add `ANTHROPIC_API_KEY` with your key
    - Select all environments (Production, Preview, Development)
    - Redeploy the project
+
+**See also:** [VERCEL_SETUP.md](./VERCEL_SETUP.md) for detailed deployment guide
 
 ## 🤖 AI Agent
 

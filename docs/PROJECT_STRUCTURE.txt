@@ -1,0 +1,62 @@
+.
+├── app
+│   ├── agent
+│   │   └── page.tsx
+│   ├── api
+│   │   └── chat
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── CLAUDE.md
+├── components
+│   ├── agent-chat.tsx
+│   ├── animated-heading.tsx
+│   ├── DotGridShader.tsx
+│   ├── live-clock.tsx
+│   ├── project-card.tsx
+│   ├── reveal-on-view.tsx
+│   ├── showcase-carousel.tsx
+│   ├── theme-provider.tsx
+│   └── ui
+│       ├── badge.tsx
+│       └── button.tsx
+├── components.json
+├── docs
+│   ├── AGENT_EXAMPLES.md
+│   ├── DEPLOYMENT.md
+│   ├── PROJECT_STRUCTURE.txt
+│   ├── PROJECT_SUMMARY.md
+│   └── QUICKSTART.md
+├── lib
+│   └── utils.ts
+├── next-env.d.ts
+├── next.config.mjs
+├── package.json
+├── pnpm-lock.yaml
+├── postcss.config.mjs
+├── public
+│   ├── images
+│   │   ├── 1 (1).webp
+│   │   ├── 1 (2).webp
+│   │   ├── 1 (3).webp
+│   │   ├── 1 (4).webp
+│   │   ├── 1 (5).webp
+│   │   ├── 1 (6).webp
+│   │   ├── portfolio-sample.png
+│   │   ├── project-1.webp
+│   │   ├── project-2.webp
+│   │   ├── project-3.webp
+│   │   ├── project-4.webp
+│   │   ├── project-5.webp
+│   │   └── project-6.webp
+│   ├── placeholder-logo.png
+│   ├── placeholder-logo.svg
+│   ├── placeholder-user.jpg
+│   ├── placeholder.jpg
+│   └── placeholder.svg
+├── README.md
+├── styles
+│   └── globals.css
+└── tsconfig.json
+
+12 directories, 48 files

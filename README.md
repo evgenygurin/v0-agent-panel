@@ -78,7 +78,23 @@ See [CLAUDE.md](./CLAUDE.md) for detailed documentation.
 - **[Quick Start Guide](./docs/QUICKSTART.md)** - 5-minute setup
 
 ### AI Development
-- **[Agent Examples](./docs/AGENT_EXAMPLES.md)** - AI patterns from Anthropic's guide
+- **[Building Effective Agents](./docs/BUILDING_EFFECTIVE_AGENTS.md)** ⭐ **NEW** - Anthropic's official guide
+  - Workflows vs Agents architecture
+  - 5 composable patterns (chaining, routing, parallelization, orchestrator, evaluator)
+  - Tool design best practices
+  - Model selection strategies
+  - Production best practices
+- **[Workflow DevKit](./docs/WORKFLOW_DEVKIT.md)** ⭐ **NEW** - Durable, reliable AI workflows
+  - Automatic retries and state persistence
+  - Long-running operations with `sleep()`
+  - Built-in observability (traces, logs, metrics)
+  - Zero-config reliability for AI agents
+- **[Vercel AI Gateway](./docs/VERCEL_AI_GATEWAY.md)** ⭐ **NEW** - Unified access to 100+ AI models
+  - Single billing across providers
+  - Intelligent failover
+  - Multi-model strategies
+  - Cost optimization
+- **[Agent Examples](./docs/AGENT_EXAMPLES.md)** - Practical AI patterns
   - Prompt chaining, routing, parallelization
   - Multi-agent orchestration
   - Structured outputs with Zod
@@ -96,17 +112,30 @@ See [CLAUDE.md](./CLAUDE.md) for detailed documentation.
 ### Authentication & Security
 - **[Authentication Guide](./docs/AUTHENTICATION.md)** ⭐ **NEW**
   - Supabase Auth integration (recommended)
-  - Auth0 setup for enterprise
+  - Auth0 setup with Lock UI
   - Custom JWT authentication
+  - Multi-factor authentication (MFA)
   - User-specific conversation history
   - Usage tracking and quota management
 
+### Advanced Features
+- **[Supabase Advanced](./docs/SUPABASE_ADVANCED.md)** ⭐ **NEW** - Event-driven architecture
+  - Edge Functions (Deno Deploy)
+  - Database Triggers & Webhooks
+  - Real-time Subscriptions
+  - Email notifications
+  - AI-powered use cases
+  - Production deployment patterns
+
 ### Next.js Best Practices
 - **[Next.js 15 Guide](./docs/NEXTJS_BEST_PRACTICES.md)** ⭐ **NEW**
-  - App Router architecture patterns
+  - App Router architecture (Parallel Routes, Intercepting Routes)
   - Server vs Client Components strategy
   - Data fetching and caching
+  - Advanced caching (`use cache` directive)
   - Streaming with React Suspense
+  - OpenTelemetry instrumentation
+  - Partial Prerendering (PPR)
   - Performance optimization techniques
   - Security and error handling
 

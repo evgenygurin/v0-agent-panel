@@ -73,11 +73,46 @@ See [CLAUDE.md](./CLAUDE.md) for detailed documentation.
 
 ## 📚 Documentation
 
-- [CLAUDE.md](./CLAUDE.md) - Comprehensive project documentation
-- [Quick Start Guide](./docs/QUICKSTART.md) - 5-minute setup
-- [Agent Examples](./docs/AGENT_EXAMPLES.md) - AI patterns & best practices
-- [Deployment Guide](./docs/DEPLOYMENT.md) - Production deployment
-- [Project Summary](./docs/PROJECT_SUMMARY.md) - What was built
+### Core Documentation
+- **[CLAUDE.md](./CLAUDE.md)** - Complete technical reference
+- **[Quick Start Guide](./docs/QUICKSTART.md)** - 5-minute setup
+
+### AI Development
+- **[Agent Examples](./docs/AGENT_EXAMPLES.md)** - AI patterns from Anthropic's guide
+  - Prompt chaining, routing, parallelization
+  - Multi-agent orchestration
+  - Structured outputs with Zod
+
+### Production Deployment
+- **[Deployment Guide](./docs/DEPLOYMENT.md)** - General deployment (Docker, Railway, Netlify)
+- **[Vercel Production Guide](./docs/VERCEL_PRODUCTION.md)** ⭐ **NEW**
+  - Fluid Compute for AI workloads
+  - Edge vs Node.js runtime selection
+  - Environment variables best practices
+  - Monitoring, logging, and observability
+  - Rate limiting and security features
+  - Cost optimization strategies
+
+### Authentication & Security
+- **[Authentication Guide](./docs/AUTHENTICATION.md)** ⭐ **NEW**
+  - Supabase Auth integration (recommended)
+  - Auth0 setup for enterprise
+  - Custom JWT authentication
+  - User-specific conversation history
+  - Usage tracking and quota management
+
+### Next.js Best Practices
+- **[Next.js 15 Guide](./docs/NEXTJS_BEST_PRACTICES.md)** ⭐ **NEW**
+  - App Router architecture patterns
+  - Server vs Client Components strategy
+  - Data fetching and caching
+  - Streaming with React Suspense
+  - Performance optimization techniques
+  - Security and error handling
+
+### Reference
+- **[Project Summary](./docs/PROJECT_SUMMARY.md)** - Complete feature overview
+- **[Project Structure](./docs/PROJECT_STRUCTURE.txt)** - File organization
 
 ## 📁 Project Structure
 

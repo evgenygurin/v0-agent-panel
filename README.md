@@ -71,6 +71,14 @@ The integrated Claude Code agent provides AI-powered assistance directly in your
 
 See [CLAUDE.md](./CLAUDE.md) for detailed documentation.
 
+## 📚 Documentation
+
+- [CLAUDE.md](./CLAUDE.md) - Comprehensive project documentation
+- [Quick Start Guide](./docs/QUICKSTART.md) - 5-minute setup
+- [Agent Examples](./docs/AGENT_EXAMPLES.md) - AI patterns & best practices
+- [Deployment Guide](./docs/DEPLOYMENT.md) - Production deployment
+- [Project Summary](./docs/PROJECT_SUMMARY.md) - What was built
+
 ## 📁 Project Structure
 
 ```text

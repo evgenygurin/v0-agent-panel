@@ -74,6 +74,11 @@ See [CLAUDE.md](./CLAUDE.md) for detailed documentation.
 ## 📚 Documentation
 
 ### Core Documentation
+- **[Integration Guide](./docs/INTEGRATION_GUIDE.md)** ⭐ **NEW** - Complete 8-day integration plan
+  - Day-by-day implementation roadmap
+  - Supabase + Auth + AI Gateway setup
+  - Production deployment checklist
+  - Full tech stack integration
 - **[CLAUDE.md](./CLAUDE.md)** - Complete technical reference
 - **[Quick Start Guide](./docs/QUICKSTART.md)** - 5-minute setup
 

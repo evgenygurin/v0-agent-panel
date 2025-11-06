@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Bot } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import DotGridShader from "@/components/DotGridShader"
@@ -113,6 +113,12 @@ export default function Page() {
                     <Link href="mailto:brandon@portfolio.dev">
                       Hire me
                       <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="rounded-full border-white/20 bg-white/5">
+                    <Link href="/agent">
+                      <Bot className="mr-2 h-4 w-4" />
+                      Try AI Agent
                     </Link>
                   </Button>
                 </div>

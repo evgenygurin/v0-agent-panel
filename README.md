@@ -30,15 +30,19 @@ Modern portfolio template with integrated **Claude Code AI Agent** built using:
 
 ### Prerequisites
 
+**For Local Development (Claude Max/Pro Subscription):**
+
 ```bash
 # Install Claude Code CLI
 npm install -g @anthropic-ai/claude-code
 
-# Authenticate with Claude
+# Authenticate with Claude (uses your Max/Pro subscription)
 claude login
 ```
 
-**Note**: Requires Claude Pro/Max subscription or Anthropic API key.
+**For Production Deployment (Vercel):**
+- Anthropic API key (free tier available at [console.anthropic.com](https://console.anthropic.com/settings/keys))
+- Works alongside your Claude Max subscription
 
 ### Installation
 
@@ -50,9 +54,8 @@ cd v0-agent-panel
 # Install dependencies (uses pnpm)
 pnpm install
 
-# Set up environment variables
-cp .env.local.example .env.local
-# Edit .env.local and add your ANTHROPIC_API_KEY
+# Authenticate with Claude Code CLI (for local development)
+claude login
 
 # Start development server
 pnpm dev
@@ -63,22 +66,38 @@ Open [http://localhost:3000/agent](http://localhost:3000/agent) to try the AI ag
 
 ### Environment Variables
 
-Create a `.env.local` file in the root directory:
+**Local Development (Claude Max/Pro):**
+- No environment variables needed!
+- Just run `claude login` once
+- Uses your existing subscription
 
-```env
-ANTHROPIC_API_KEY=sk-ant-api03-...
-```
+**Production Deployment (Vercel):**
 
-**Get your API key:**
-1. Go to [Anthropic Console](https://console.anthropic.com/settings/keys)
-2. Create a new API key
-3. Copy and paste it into `.env.local`
+1. Get an API key:
+   - Go to [Anthropic Console](https://console.anthropic.com/settings/keys)
+   - Create a new API key (free tier available)
+   - API key works alongside your Claude Max subscription
 
-**For Vercel deployment:**
-1. Go to your project settings on Vercel
-2. Navigate to **Environment Variables**
-3. Add `ANTHROPIC_API_KEY` with your key
-4. Redeploy the project
+2. Add to Vercel via CLI:
+   ```bash
+   # Link project (if not already linked)
+   vercel link
+
+   # Add API key to all environments
+   vercel env add ANTHROPIC_API_KEY production
+   vercel env add ANTHROPIC_API_KEY preview
+   vercel env add ANTHROPIC_API_KEY development
+
+   # Deploy
+   vercel --prod
+   ```
+
+3. Or add via Vercel Dashboard:
+   - Go to your project settings on Vercel
+   - Navigate to **Environment Variables**
+   - Add `ANTHROPIC_API_KEY` with your key
+   - Select all environments (Production, Preview, Development)
+   - Redeploy the project
 
 ## 🤖 AI Agent
 

@@ -50,12 +50,35 @@ cd v0-agent-panel
 # Install dependencies (uses pnpm)
 pnpm install
 
+# Set up environment variables
+cp .env.local.example .env.local
+# Edit .env.local and add your ANTHROPIC_API_KEY
+
 # Start development server
 pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see the portfolio.
 Open [http://localhost:3000/agent](http://localhost:3000/agent) to try the AI agent.
+
+### Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+ANTHROPIC_API_KEY=sk-ant-api03-...
+```
+
+**Get your API key:**
+1. Go to [Anthropic Console](https://console.anthropic.com/settings/keys)
+2. Create a new API key
+3. Copy and paste it into `.env.local`
+
+**For Vercel deployment:**
+1. Go to your project settings on Vercel
+2. Navigate to **Environment Variables**
+3. Add `ANTHROPIC_API_KEY` with your key
+4. Redeploy the project
 
 ## 🤖 AI Agent
 

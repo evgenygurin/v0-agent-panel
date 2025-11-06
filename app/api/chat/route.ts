@@ -1,9 +1,5 @@
 import { streamText } from 'ai'
-import { claudeCode } from 'ai-sdk-provider-claude-code'
-
-// Note: In AI SDK v5, you can also use:
-// import { anthropic } from '@ai-sdk/anthropic'
-// const model = anthropic('claude-sonnet-4-5-20250929')
+import { anthropic } from '@ai-sdk/anthropic'
 
 export const maxDuration = 300 // 5 minutes max duration
 
@@ -11,10 +7,38 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json()
 
-    // Configure Claude Code with system prompt and settings
-    const model = claudeCode('sonnet', {
-      systemPrompt: { type: 'preset', preset: 'claude_code' },
-      settingSources: ['user', 'project', 'local'],
+    // Validate messages
+    if (!messages || !Array.isArray(messages)) {
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid request',
+          details: 'Messages array is required',
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    // Check for API key
+    const apiKey = process.env.ANTHROPIC_API_KEY
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({
+          error: 'Configuration error',
+          details: 'ANTHROPIC_API_KEY environment variable is not set. Please configure it in your Vercel project settings.',
+        }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    }
+
+    // Use Anthropic provider with API key
+    const model = anthropic('claude-sonnet-4-5-20250929', {
+      apiKey,
     })
 
     const result = streamText({

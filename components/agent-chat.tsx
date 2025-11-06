@@ -115,7 +115,7 @@ export default function AgentChat() {
       <div className="border-t border-white/10 bg-neutral-900/60 p-4 backdrop-blur-sm">
         <form onSubmit={handleSubmit} className="flex gap-3">
           <input
-            value={input}
+            value={input || ''}
             onChange={handleInputChange}
             placeholder="Ask Claude anything..."
             disabled={isLoading}
@@ -130,7 +130,7 @@ export default function AgentChat() {
           <Button
             type="submit"
             size="icon"
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading || !input?.trim()}
             className="h-12 w-12 shrink-0 rounded-full"
           >
             <Send className="h-4 w-4" />

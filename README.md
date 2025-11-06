@@ -2,9 +2,13 @@
 
 *Automatically synced with your [v0.dev](https://v0.dev) deployments*
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/lenxisms-projects/v0-portfolio-template-design)
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://v0-agent-panel-77oj652ik-eagurins-projects.vercel.app)
 [![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/0INS7N2xMca)
 [![AI SDK](https://img.shields.io/badge/AI%20SDK-v5%20beta-blue?style=for-the-badge)](https://sdk.vercel.ai)
+
+**🚀 Live Production:** [https://v0-agent-panel-77oj652ik-eagurins-projects.vercel.app](https://v0-agent-panel-77oj652ik-eagurins-projects.vercel.app)
+
+**📊 Status:** ✅ Deployed | ⏳ AI Agent (requires API key)
 
 ## 🎯 Overview
 

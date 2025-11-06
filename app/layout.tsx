@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
+import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'v0 Agent Panel - Portfolio + AI Assistant',
+  description: 'Modern portfolio with integrated Claude Code AI Agent',
   generator: 'v0.dev',
 }
 
@@ -29,7 +30,10 @@ export default function RootLayout({
 html { font-family: var(--font-sans); }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }

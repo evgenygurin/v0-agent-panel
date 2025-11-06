@@ -3,6 +3,9 @@ import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import AgentChat from '@/components/agent-chat'
 
+// Force dynamic rendering to prevent prerendering errors with client-side chat hooks
+export const dynamic = 'force-dynamic'
+
 export default function AgentPage() {
   return (
     <main className="flex h-screen flex-col bg-neutral-950 text-white">

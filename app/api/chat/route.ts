@@ -1,6 +1,10 @@
 import { streamText } from 'ai'
 import { claudeCode } from 'ai-sdk-provider-claude-code'
 
+// Note: In AI SDK v5, you can also use:
+// import { anthropic } from '@ai-sdk/anthropic'
+// const model = anthropic('claude-sonnet-4-5-20250929')
+
 export const maxDuration = 300 // 5 minutes max duration
 
 export async function POST(req: Request) {

@@ -1,5 +1,4 @@
 import { anthropic } from '@ai-sdk/anthropic';
-import { claudeCode } from 'ai-sdk-provider-claude-code';
 import { streamText, type CoreMessage } from 'ai';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -7,12 +6,18 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 export async function chatWorkflow(messages: CoreMessage[]) {
   'use workflow';
 
-  const model = isDevelopment
-    ? claudeCode('sonnet', {
-        systemPrompt: { type: 'preset', preset: 'claude_code' },
-        settingSources: ['user', 'project', 'local'],
-      })
-    : anthropic('claude-sonnet-4-5-20250929');
+  let model: any;
+
+  if (isDevelopment) {
+    // Dynamic import for development only
+    const { claudeCode } = await import('ai-sdk-provider-claude-code');
+    model = claudeCode('sonnet', {
+      systemPrompt: { type: 'preset', preset: 'claude_code' },
+      settingSources: ['user', 'project', 'local'],
+    });
+  } else {
+    model = anthropic('claude-sonnet-4-5-20250929');
+  }
 
   const result = await generateResponse(messages, model);
   await logMetrics(result);
@@ -40,7 +45,7 @@ async function generateResponse(messages: CoreMessage[], model: any) {
     async onFinish({ text, finishReason: reason, usage: usageData }) {
       fullText = text;
       finishReason = reason;
-      usage = usageData;
+      usage = usageData as any;
     },
   });
 

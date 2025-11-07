@@ -66,13 +66,12 @@ export default function AnimatedHeading({
       .sort((a, b) => a[0] - b[0])
       .forEach(([lineIndex, words]) => {
         animate(
-          words,
-          { opacity: 1, filter: "blur(0px)", transform: "translateY(0)" },
+          words as any,
+          { opacity: 1, filter: "blur(0px)", transform: "translateY(0)" } as any,
           {
             duration: durationPerWord,
-            delay: stagger(staggerPerWord, { start: startDelay + lineIndex * lineDelay }),
-            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-          }
+            delay: stagger(staggerPerWord, { from: startDelay + lineIndex * lineDelay } as any),
+          } as any
         )
       })
   }, [startDelay])

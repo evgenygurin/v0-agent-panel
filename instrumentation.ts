@@ -17,8 +17,6 @@ export async function register() {
 
     Sentry.init({
       dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-      organization: 'mesoshop',
-      project: 'sentry-orange-queen',
       tracesSampleRate: 1.0,
       debug: false,
       environment: process.env.VERCEL_ENV || process.env.NODE_ENV || 'development',
@@ -50,8 +48,6 @@ export async function register() {
 
     Sentry.init({
       dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-      organization: 'mesoshop',
-      project: 'sentry-orange-queen',
       tracesSampleRate: 1.0,
       debug: false,
       environment: process.env.VERCEL_ENV || process.env.NODE_ENV || 'development',

@@ -1,92 +1,53 @@
+"use client"
+
 import Link from "next/link"
-import { ArrowRight, Bot } from "lucide-react"
+import { ArrowRight, Bot, Moon, Sun } from "lucide-react"
+import dynamic from "next/dynamic"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import DotGridShader from "@/components/DotGridShader"
 
-import ProjectCard from "@/components/project-card"
 import AnimatedHeading from "@/components/animated-heading"
 import RevealOnView from "@/components/reveal-on-view"
 
+interface AgentChatProps {
+  theme?: 'light' | 'dark'
+  chatColor?: 'purple' | 'blue' | 'green'
+}
+
+// Dynamically import AgentChat without SSR to prevent hydration errors
+const AgentChat = dynamic<AgentChatProps>(() => import("@/components/agent-chat"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <Bot className="h-12 w-12 animate-pulse text-white/20" />
+        <p className="text-sm text-white/60">Loading chat...</p>
+      </div>
+    </div>
+  ),
+})
+
 export default function Page() {
-  const projects = [
-    {
-      title: "Walletly — Multi‑account mobile banking",
-      subtitle: "End‑to‑end product design",
-      imageSrc: "/images/project-1.webp",
-      tags: ["Mobile", "Fintech", "UI/UX"],
-      href: "#project-1",
-      priority: true,
-      gradientFrom: "#0f172a",
-      gradientTo: "#6d28d9",
-    },
-    {
-      title: "Nimbus — SaaS analytics",
-      subtitle: "Design system & web app",
-      imageSrc: "/images/project-2.webp",
-      tags: ["SaaS", "Design System", "Web"],
-      href: "#project-2",
-      priority: false,
-      gradientFrom: "#111827",
-      gradientTo: "#2563eb",
-    },
-    {
-      title: "Arcade — E‑commerce for streetwear",
-      subtitle: "Mobile‑first storefront",
-      imageSrc: "/images/project-3.webp",
-      tags: ["Commerce", "Mobile", "Brand"],
-      href: "#project-3",
-      priority: false,
-      gradientFrom: "#0b132b",
-      gradientTo: "#5bc0be",
-    },
-    {
-      title: "CareConnect — Patient portal",
-      subtitle: "Accessibility‑first UI",
-      imageSrc: "/images/project-4.webp",
-      tags: ["A11y", "Web App", "Health"],
-      href: "#project-4",
-      priority: false,
-      gradientFrom: "#0f172a",
-      gradientTo: "#10b981",
-    },
-    {
-      title: "Aurora — Creative portfolio",
-      subtitle: "Motion & interaction design",
-      imageSrc: "/images/project-5.webp",
-      tags: ["Portfolio", "Animation", "UI/UX"],
-      href: "#project-5",
-      priority: false,
-      gradientFrom: "#1f2937",
-      gradientTo: "#8b5cf6",
-    },
-    {
-      title: "Hydra — AI assistant",
-      subtitle: "Conversational product UX",
-      imageSrc: "/images/project-6.webp",
-      tags: ["AI", "SaaS", "Product"],
-      href: "#project-6",
-      priority: false,
-      gradientFrom: "#0b132b",
-      gradientTo: "#10b981",
-    },
-  ]
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [chatColor, setChatColor] = useState<'purple' | 'blue' | 'green'>('purple')
 
   return (
     <main className="bg-neutral-950 text-white">
-      {/* HERO: full-viewport row. Left is sticky; right scrolls internally. */}
+      {/* HERO: three-column layout with sticky sidebars */}
       <section className="px-4 pt-4 pb-16 lg:pb-4">
-        <div className="grid h-full grid-cols-1 gap-4 lg:grid-cols-[420px_1fr]">
+        <div className="grid h-full grid-cols-1 gap-4 lg:grid-cols-[420px_1fr_420px]">
           {/* LEFT: sticky and full height, no cut off */}
           <aside className="lg:sticky lg:top-4 lg:h-[calc(100svh-2rem)]">
             <RevealOnView
               as="div"
               intensity="hero"
-              className="relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-neutral-900/60 p-6 sm:p-8"
+              className="relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-black/50 p-6 sm:p-8 shadow-[0_10px_60px_-10px_rgba(0,0,0,0.6)]"
               staggerChildren
             >
               {/* Texture background */}
-              <div className="pointer-events-none absolute inset-0 opacity-5 mix-blend-soft-light">
+              <div className="pointer-events-none absolute inset-0 opacity-[0.08]">
                 <DotGridShader />
               </div>
               <div>
@@ -115,7 +76,7 @@ export default function Page() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button asChild size="lg" variant="outline" className="rounded-full border-white/20 bg-white/5">
+                  <Button asChild size="lg" variant="outline" className="rounded-full border-white/10 bg-white/10">
                     <Link href="/agent">
                       <Bot className="mr-2 h-4 w-4" />
                       Try AI Agent
@@ -135,29 +96,143 @@ export default function Page() {
                     <li>Xwitter</li>
                   </ul>
                 </div>
+
+                {/* Theme & Color Controls */}
+                <div className="mt-10 space-y-4">
+                  <div>
+                    <p className="mb-2 text-xs font-semibold tracking-widest text-white/50">THEME</p>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant={theme === 'dark' ? 'default' : 'outline'}
+                        onClick={() => setTheme('dark')}
+                        className="flex-1 rounded-full text-xs"
+                      >
+                        <Moon className="mr-1 h-3 w-3" />
+                        Dark
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={theme === 'light' ? 'default' : 'outline'}
+                        onClick={() => setTheme('light')}
+                        className="flex-1 rounded-full text-xs"
+                      >
+                        <Sun className="mr-1 h-3 w-3" />
+                        Light
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-xs font-semibold tracking-widest text-white/50">CHAT COLOR</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button
+                        size="sm"
+                        variant={chatColor === 'purple' ? 'default' : 'outline'}
+                        onClick={() => setChatColor('purple')}
+                        className="rounded-full bg-purple-600 hover:bg-purple-700"
+                      >
+                        Purple
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={chatColor === 'blue' ? 'default' : 'outline'}
+                        onClick={() => setChatColor('blue')}
+                        className="rounded-full bg-blue-600 hover:bg-blue-700"
+                      >
+                        Blue
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={chatColor === 'green' ? 'default' : 'outline'}
+                        onClick={() => setChatColor('green')}
+                        className="rounded-full bg-green-600 hover:bg-green-700"
+                      >
+                        Green
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </RevealOnView>
           </aside>
 
-          {/* RIGHT: simplified, no internal card or horizontal carousel */}
-          <div className="space-y-4">
-            {projects.map((p, idx) => (
-              <ProjectCard
-                key={p.title}
-                title={p.title}
-                subtitle={p.subtitle}
-                imageSrc={p.imageSrc}
-                tags={p.tags}
-                href={p.href}
-                priority={p.priority}
-                gradientFrom={p.gradientFrom}
-                gradientTo={p.gradientTo}
-                imageContainerClassName="lg:h-full"
-                containerClassName="lg:h-[calc(100svh-2rem)]"
-                revealDelay={idx * 0.06}
-              />
-            ))}
+          {/* CENTER: Chat window */}
+          <div className="lg:h-[calc(100svh-2rem)]">
+            <RevealOnView
+              as="div"
+              intensity="soft"
+              className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-black/50 shadow-[0_10px_60px_-10px_rgba(0,0,0,0.6)]"
+            >
+              {/* Texture background */}
+              <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.15]">
+                <DotGridShader />
+              </div>
+              <div className="relative z-10 flex h-full flex-col">
+                <AgentChat theme={theme} chatColor={chatColor} />
+              </div>
+            </RevealOnView>
           </div>
+
+          {/* RIGHT: Sidebar */}
+          <aside className="hidden lg:block lg:sticky lg:top-4 lg:h-[calc(100svh-2rem)]">
+            <RevealOnView
+              as="div"
+              intensity="soft"
+              className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-black/50 p-6 sm:p-8 shadow-[0_10px_60px_-10px_rgba(0,0,0,0.6)]"
+            >
+              {/* Texture background */}
+              <div className="pointer-events-none absolute inset-0 opacity-[0.08]">
+                <DotGridShader />
+              </div>
+
+              <div className="relative z-10">
+                <h2 className="mb-4 text-2xl font-bold">Features</h2>
+
+                <div className="space-y-4">
+                  <div className="rounded-3xl bg-black/50 p-4 backdrop-blur-sm border border-white/10">
+                    <div className="mb-2 flex items-center gap-2">
+                      <Bot className="h-5 w-5 text-purple-400" />
+                      <h3 className="font-semibold">AI-Powered</h3>
+                    </div>
+                    <p className="text-sm text-white/70">
+                      Chat with Claude, powered by Anthropic's latest AI models
+                    </p>
+                  </div>
+
+                  <div className="rounded-3xl bg-black/50 p-4 backdrop-blur-sm border border-white/10">
+                    <div className="mb-2 flex items-center gap-2">
+                      <ArrowRight className="h-5 w-5 text-blue-400" />
+                      <h3 className="font-semibold">Real-time</h3>
+                    </div>
+                    <p className="text-sm text-white/70">
+                      Get instant responses with streaming support
+                    </p>
+                  </div>
+
+                  <div className="rounded-3xl bg-black/50 p-4 backdrop-blur-sm border border-white/10">
+                    <div className="mb-2 flex items-center gap-2">
+                      <Bot className="h-5 w-5 text-green-400" />
+                      <h3 className="font-semibold">Context-Aware</h3>
+                    </div>
+                    <p className="text-sm text-white/70">
+                      Maintains conversation history for better responses
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <p className="mb-3 text-xs font-semibold tracking-widest text-white/50">TECH STACK</p>
+                  <ul className="space-y-2 text-sm text-white/60">
+                    <li>• Next.js 15</li>
+                    <li>• Vercel AI SDK</li>
+                    <li>• OpenTelemetry</li>
+                    <li>• Sentry Monitoring</li>
+                  </ul>
+                </div>
+              </div>
+            </RevealOnView>
+          </aside>
         </div>
       </section>
     </main>

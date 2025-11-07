@@ -4,17 +4,56 @@ import { useChat } from '@ai-sdk/react'
 import { Send, Bot, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-export default function AgentChat() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
-    api: '/api/chat',
+interface AgentChatProps {
+  theme?: 'light' | 'dark'
+  chatColor?: 'purple' | 'blue' | 'green'
+}
+
+export default function AgentChat({ theme = 'dark', chatColor = 'purple' }: AgentChatProps) {
+  const chatHelpers = useChat({
     onError: (error) => {
       console.error('Chat error:', error)
     },
   })
 
+  const { messages, input, setInput, handleSubmit, isLoading, error } = chatHelpers as any
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [isClient, setIsClient] = useState(false)
+
+  // Get color classes based on chatColor
+  const getColorClasses = () => {
+    switch (chatColor) {
+      case 'purple':
+        return {
+          avatar: 'bg-gradient-to-br from-purple-500 to-blue-500',
+          accent: 'text-purple-400',
+        }
+      case 'blue':
+        return {
+          avatar: 'bg-gradient-to-br from-blue-500 to-cyan-500',
+          accent: 'text-blue-400',
+        }
+      case 'green':
+        return {
+          avatar: 'bg-gradient-to-br from-green-500 to-emerald-500',
+          accent: 'text-green-400',
+        }
+      default:
+        return {
+          avatar: 'bg-gradient-to-br from-purple-500 to-blue-500',
+          accent: 'text-purple-400',
+        }
+    }
+  }
+
+  const colors = getColorClasses()
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -38,7 +77,7 @@ export default function AgentChat() {
           </div>
         ) : (
           <>
-            {messages.map((message) => (
+            {messages.map((message: any) => (
               <div
                 key={message.id}
                 className={cn(
@@ -55,10 +94,10 @@ export default function AgentChat() {
                   {/* Avatar */}
                   <div
                     className={cn(
-                      'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+                      'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10',
                       message.role === 'user'
                         ? 'bg-white/10'
-                        : 'bg-gradient-to-br from-purple-500 to-blue-500'
+                        : colors.avatar
                     )}
                   >
                     {message.role === 'user' ? (
@@ -71,14 +110,14 @@ export default function AgentChat() {
                   {/* Message Bubble */}
                   <div
                     className={cn(
-                      'rounded-2xl px-4 py-3',
+                      'rounded-3xl px-4 py-3 backdrop-blur-sm border border-white/10',
                       message.role === 'user'
-                        ? 'bg-white/10 backdrop-blur-sm'
-                        : 'bg-white/5 backdrop-blur-sm'
+                        ? 'bg-white/10'
+                        : 'bg-black/50'
                     )}
                   >
                     <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-                      {message.content}
+                      {typeof message.content === 'string' ? message.content : JSON.stringify(message.content)}
                     </p>
                   </div>
                 </div>
@@ -87,10 +126,10 @@ export default function AgentChat() {
 
             {isLoading && (
               <div className="flex gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-blue-500">
+                <div className={cn('flex h-8 w-8 shrink-0 items-center justify-center rounded-full', colors.avatar)}>
                   <Bot className="h-4 w-4" />
                 </div>
-                <div className="rounded-2xl bg-white/5 px-4 py-3 backdrop-blur-sm">
+                <div className="rounded-3xl bg-black/50 px-4 py-3 backdrop-blur-sm border border-white/10">
                   <div className="flex items-center gap-1">
                     <div className="h-2 w-2 animate-bounce rounded-full bg-white/60 [animation-delay:-0.3s]" />
                     <div className="h-2 w-2 animate-bounce rounded-full bg-white/60 [animation-delay:-0.15s]" />
@@ -112,30 +151,40 @@ export default function AgentChat() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-white/10 bg-neutral-900/60 p-4 backdrop-blur-sm">
-        <form onSubmit={handleSubmit} className="flex gap-3">
-          <input
-            value={input || ''}
-            onChange={handleInputChange}
-            placeholder="Ask Claude anything..."
-            disabled={isLoading}
-            className={cn(
-              'flex-1 rounded-full bg-white/5 px-4 py-3 text-sm outline-none',
-              'placeholder:text-white/40',
-              'focus:bg-white/10 focus:ring-2 focus:ring-white/20',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-              'transition-all'
-            )}
-          />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={isLoading || !input?.trim()}
-            className="h-12 w-12 shrink-0 rounded-full"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
+      <div className="border-t border-white/10 p-4">
+        {isClient ? (
+          <form onSubmit={handleSubmit} className="flex gap-3">
+            <input
+              value={input || ''}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask Claude anything..."
+              disabled={isLoading}
+              autoComplete="off"
+              className={cn(
+                'flex-1 rounded-2xl bg-black/50 border border-white/10 px-4 py-3 text-sm outline-none',
+                'placeholder:text-white/40',
+                'focus:bg-white/10 focus:ring-2 focus:ring-white/20',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+                'transition-all'
+              )}
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={isLoading || !input?.trim()}
+              className="h-12 w-12 shrink-0 rounded-full"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </form>
+        ) : (
+          <div className="flex gap-3">
+            <div className="flex-1 rounded-2xl bg-black/50 border border-white/10 px-4 py-3 text-sm text-white/40">
+              Ask Claude anything...
+            </div>
+            <div className="h-12 w-12 shrink-0 rounded-full bg-black/50 border border-white/10" />
+          </div>
+        )}
       </div>
     </div>
   )

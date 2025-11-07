@@ -1,6 +1,5 @@
 import { streamText } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
-import { claudeCode } from 'ai-sdk-provider-claude-code'
 import { trace } from '@opentelemetry/api'
 
 export const maxDuration = 300 // 5 minutes max duration
@@ -43,10 +42,12 @@ export async function POST(req: Request) {
       if (isProduction && apiKey) {
         // Production with API key
         span.setAttribute('ai.model', 'claude-sonnet-4-5')
-        model = anthropic('claude-sonnet-4-5-20250929', { apiKey })
+        model = anthropic('claude-sonnet-4-5-20250929')
       } else if (!isProduction) {
         // Local development with Claude Code CLI (requires: claude login)
         try {
+          // Dynamic import to avoid loading in production
+          const { claudeCode } = await import('ai-sdk-provider-claude-code')
           span.setAttribute('ai.model', 'claude-code-sonnet')
           model = claudeCode('sonnet', {
             systemPrompt: { type: 'preset', preset: 'claude_code' },
@@ -97,8 +98,9 @@ export async function POST(req: Request) {
           span.setAttribute('ai.duration_ms', duration)
 
           if (usage) {
-            span.setAttribute('ai.tokens.input', usage.promptTokens || 0)
-            span.setAttribute('ai.tokens.output', usage.completionTokens || 0)
+            const usageAny = usage as any;
+            span.setAttribute('ai.tokens.input', usage.inputTokens || usageAny.promptTokens || 0)
+            span.setAttribute('ai.tokens.output', usage.outputTokens || usageAny.completionTokens || 0)
             span.setAttribute('ai.tokens.total', usage.totalTokens || 0)
           }
 
@@ -115,7 +117,7 @@ export async function POST(req: Request) {
         },
       })
 
-      return result.toDataStreamResponse()
+      return result.toTextStreamResponse()
     } catch (error) {
       console.error('Chat API error:', error)
       span.recordException(error as Error)

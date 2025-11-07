@@ -77,6 +77,10 @@ Open [http://localhost:3000/agent](http://localhost:3000/agent) to try the AI ag
 
 **Production Deployment (Vercel):**
 
+**⚠️ IMPORTANT: Required Environment Variables**
+
+This project requires `ANTHROPIC_API_KEY` for production deployment. Without it, the build will fail.
+
 **Quick Setup (Automated Script):**
 ```bash
 # One-command setup with interactive prompts
@@ -101,7 +105,7 @@ This script will:
    # Link project (if not already linked)
    vercel link
 
-   # Add API key to all environments
+   # Add API key to all environments (REQUIRED for build)
    vercel env add ANTHROPIC_API_KEY
 
    # Deploy
@@ -115,7 +119,14 @@ This script will:
    - Select all environments (Production, Preview, Development)
    - Redeploy the project
 
-**See also:** [VERCEL_SETUP.md](./VERCEL_SETUP.md) for detailed deployment guide
+4. Optional: Add Sentry DSN for error monitoring:
+   ```bash
+   vercel env add NEXT_PUBLIC_SENTRY_DSN
+   ```
+
+**See also:**
+- [.env.example](./.env.example) for all environment variables
+- [VERCEL_SETUP.md](./VERCEL_SETUP.md) for detailed deployment guide
 
 ## 🤖 AI Agent
 

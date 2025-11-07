@@ -40,15 +40,16 @@ export async function POST(req: Request) {
       let model: any
 
       if (isProduction && apiKey) {
-        // Production with API key
+        // Production: use Anthropic API (free with Claude Max subscription)
         span.setAttribute('ai.model', 'claude-sonnet-4-5')
+        span.setAttribute('ai.provider', 'anthropic')
         model = anthropic('claude-sonnet-4-5-20250929')
       } else if (!isProduction) {
-        // Local development with Claude Code CLI (requires: claude login)
+        // Development: use Claude Code CLI
         try {
-          // Dynamic import to avoid loading in production
           const { claudeCode } = await import('ai-sdk-provider-claude-code')
           span.setAttribute('ai.model', 'claude-code-sonnet')
+          span.setAttribute('ai.provider', 'claude-code')
           model = claudeCode('sonnet', {
             systemPrompt: { type: 'preset', preset: 'claude_code' },
             settingSources: ['user', 'project', 'local'],
@@ -75,7 +76,7 @@ export async function POST(req: Request) {
         return new Response(
           JSON.stringify({
             error: 'Configuration error',
-            details: 'AI Agent requires authentication. Please add ANTHROPIC_API_KEY to your Vercel environment variables, or get a free API key at https://console.anthropic.com/settings/keys (works alongside your Claude Max subscription).',
+            details: 'Production requires ANTHROPIC_API_KEY. Get your FREE API key at https://console.anthropic.com/settings/keys (included with Claude Max subscription). Then add it to Vercel: https://vercel.com/eagurins-projects/v0-agent-panel/settings/environment-variables',
           }),
           {
             status: 500,
